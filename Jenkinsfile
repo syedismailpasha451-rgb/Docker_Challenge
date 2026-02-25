@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "syedismailpasha451/python-app"
+        DOCKER_IMAGE = "syed5zan/python-app"
         BUILD_TAG = "${env.BUILD_NUMBER}"
     }
 
@@ -49,15 +49,6 @@ pipeline {
             steps {
                 sh 'docker system prune -f'
             }
-        }
-    }
-
-    post {
-        success {
-            echo "✅ Build #${BUILD_NUMBER} pushed successfully!"
-        }
-        failure {
-            echo "❌ Pipeline failed!"
         }
     }
 }
