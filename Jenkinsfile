@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "syedismailpasha451/python-app"
-        IMAGE_TAG = "latest"
+        DOCKER_IMAGE = "syedismailpasha451/python-app"
+        BUILD_TAG = "${env.BUILD_NUMBER}"
     }
 
     stages {
@@ -17,7 +17,10 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
+                sh """
+                    docker build -t $DOCKER_IMAGE:latest .
+                    docker tag $DOCKER_IMAGE:latest $DOCKER_IMAGE:$BUILD_TAG
+                """
             }
         }
 
@@ -35,17 +38,26 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                sh 'docker push $IMAGE_NAME:$IMAGE_TAG'
+                sh """
+                    docker push $DOCKER_IMAGE:latest
+                    docker push $DOCKER_IMAGE:$BUILD_TAG
+                """
+            }
+        }
+
+        stage('Cleanup') {
+            steps {
+                sh 'docker system prune -f'
             }
         }
     }
 
     post {
         success {
-            echo "✅ Docker Image Built and Pushed Successfully!"
+            echo "✅ Build #${BUILD_NUMBER} pushed successfully!"
         }
         failure {
-            echo "❌ Build Failed!"
+            echo "❌ Pipeline failed!"
         }
     }
 }
